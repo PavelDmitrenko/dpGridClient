@@ -1,4 +1,5 @@
-﻿/// <reference path="../grid.ts" />
+﻿/// <reference path="../dpgrid.ts" />
+
 
 
 class GridSelector {

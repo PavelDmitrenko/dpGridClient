@@ -1,11 +1,11 @@
-﻿/// <reference path="../../../typings/jquery/jquery.d.ts" />
+﻿/// <reference path="../../typings/jquery/jquery.d.ts" />
 
 class Footer {
 
 	private readonly _gridInstance;
 
 	TotalToShow: number;
-
+	 
 	private readonly _container: JQuery;
 	private readonly _ctrlSelected: JQuery;
 	private readonly _ctrlRecsCount: JQuery;

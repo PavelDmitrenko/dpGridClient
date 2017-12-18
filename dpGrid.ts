@@ -1,8 +1,8 @@
 ﻿
 /// <reference path="Parts/GridSelector.ts" />
 /// <reference path="parts/interfaces.ts" />
-/// <reference path="../../typings/jqgrid/jqgrid.d.ts" />
 /// <reference path="parts/footer.ts" />
+/// <reference path="jquery.jqgrid/typings/jqgrid/jqgrid.d.ts" />
 
 
 class GridForm implements IBaseGridForm {
@@ -14,7 +14,7 @@ class GridForm implements IBaseGridForm {
 	private _currentPage: number;
 	private _rowsToLoad: Array<number>;
 
-	private _isFirstLoad: boolean;
+	private _isFirstLoad: boolean; 
 	private _settings: IGridSettings;
 
 	private _UrlExport: string;
