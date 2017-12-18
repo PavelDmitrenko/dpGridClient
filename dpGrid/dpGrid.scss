@@ -1,0 +1,46 @@
+﻿.GridTable {
+	.edit {
+		font-family: svg;
+		font-size: 10px;
+		text-align: center !important;
+		color: silver;
+		cursor: pointer;
+	}
+
+	.edit:hover {
+		color: #4c8d9a;
+	}
+
+	.edit:before {
+		content: "W";
+	}
+}
+
+
+
+tr.jqgrow.ui-state-hover .bgContact,
+tr.jqgrow[data-selected='1'] .bgContact {
+	background-color: #d4e8f8;
+}
+
+
+div.ui-jqgrid-bdiv tr.gridrow__selected {
+	background: #bfd8f8;
+	color: black;
+}
+
+
+div.ui-jqgrid-bdiv tr.ui-state-hover {
+	background-color: #d7e7fb;
+	color: black;
+}
+
+div.ui-jqgrid-bdiv tr.ui-state-hover.gridrow__selected {
+	background-color: #a7c7f4;
+}
+
+
+div.ui-jqgrid-bdiv .ui-state-highlight {
+	background: unset;
+	border: 1px solid #dddddd;
+}
