@@ -14,6 +14,17 @@ interface IContextMenu {
 	onSelect: (action, id) => void;
 }
 
+interface IGridJqFilter {
+	data: string;
+	field: string;
+	op: string;
+}
+
+interface IGridFilter {
+	ColumnName: string;
+	Value: any;
+}
+
 interface IDpGridRow {
 	html: JQuery;
 	id:number|string;
@@ -24,4 +35,11 @@ interface IGridSettings {
 	UrlData: string;
 	UrlColumns: string;
 	ShowPager?: boolean;
+	ShowFilters?: boolean;
+	AddButton?:IGridAddButtonSettings;
+}
+
+interface IGridAddButtonSettings {
+	ShowButton?: boolean;
+	OnClick?:()=>void;
 }
