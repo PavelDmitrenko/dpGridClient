@@ -42,6 +42,26 @@ class GridSelector {
 		this._GetRows().addClass("gridrow__selected");
 	}
 
+
+	public SelectRows(rowIds: Array<number>) {
+		const rows = this._GetRows();
+
+		const stringArray = rowIds.map( (x) => {
+			return x.toString();
+		});
+
+		rows.each((ind, el) => {
+
+			const $el = $(el);
+			const id = $el.attr("id");
+
+			if (stringArray.indexOf(id) !== -1) {
+				$(el).addClass("gridrow__selected");
+			}
+		});
+	}
+
+
 	public GetSelected(): Array<number> {
 
 		var arr = new Array();
