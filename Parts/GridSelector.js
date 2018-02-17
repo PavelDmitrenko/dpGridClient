@@ -31,6 +31,19 @@ var GridSelector = (function () {
     GridSelector.prototype.SelectAll = function () {
         this._GetRows().addClass("gridrow__selected");
     };
+    GridSelector.prototype.SelectRows = function (rowIds) {
+        var rows = this._GetRows();
+        var stringArray = rowIds.map(function (x) {
+            return x.toString();
+        });
+        rows.each(function (ind, el) {
+            var $el = $(el);
+            var id = $el.attr("id");
+            if (stringArray.indexOf(id) !== -1) {
+                $(el).addClass("gridrow__selected");
+            }
+        });
+    };
     GridSelector.prototype.GetSelected = function () {
         var arr = new Array();
         var sel = this._gridInstance.Container.find(".ui-jqgrid-bdiv tbody > tr.gridrow__selected:not(.jqgroup):not(.jqgfirstrow)");
