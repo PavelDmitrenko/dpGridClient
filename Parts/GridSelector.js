@@ -1,5 +1,5 @@
 /// <reference path="../dpgrid.ts" />
-var GridSelector = (function () {
+var GridSelector = /** @class */ (function () {
     function GridSelector(gridInstance) {
         var _this = this;
         this._gridInstance = gridInstance;

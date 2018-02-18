@@ -1,14 +1,14 @@
-﻿.GridTable .edit {
+﻿.dpGrid .edit {
   font-family: svg;
   font-size: 10px;
   text-align: center !important;
   color: silver;
   cursor: pointer; }
 
-.GridTable .edit:hover {
+.dpGrid .edit:hover {
   color: #4c8d9a; }
 
-.GridTable .edit:before {
+.dpGrid .edit:before {
   content: "W"; }
 
 tr.jqgrow.ui-state-hover .bgContact,

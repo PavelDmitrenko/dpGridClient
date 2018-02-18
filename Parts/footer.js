@@ -1,5 +1,5 @@
 /// <reference path="../../typings/jquery/jquery.d.ts" />
-var Footer = (function () {
+var Footer = /** @class */ (function () {
     function Footer(gridInstance) {
         var _this = this;
         this._gridInstance = gridInstance;

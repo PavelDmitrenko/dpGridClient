@@ -512,7 +512,7 @@ class GridForm implements IBaseGridForm {
 
 		const headerHeight = uiJqgrid.find("div.ui-jqgrid-hdiv").outerHeight();
 
-		let pagerHeight = uiJqgrid.find("#gridpager").outerHeight();
+		let pagerHeight = uiJqgrid.find(`#gridpager_${this._settings.GridId}`).outerHeight();
 		pagerHeight = !pagerHeight ? 0 : pagerHeight;
 
 		const height = parentHeight - headerHeight - pagerHeight - 2;

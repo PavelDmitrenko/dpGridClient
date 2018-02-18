@@ -2,7 +2,7 @@
 /// <reference path="parts/interfaces.ts" />
 /// <reference path="parts/footer.ts" />
 /// <reference path="jquery.jqgrid/typings/jqgrid/jqgrid.d.ts" />
-var GridForm = (function () {
+var GridForm = /** @class */ (function () {
     function GridForm() {
     }
     GridForm.prototype.Init = function (settings) {
@@ -365,7 +365,7 @@ var GridForm = (function () {
         var pWidth = uiJqgrid.parent().outerWidth();
         var parentHeight = uiJqgrid.parent().outerHeight();
         var headerHeight = uiJqgrid.find("div.ui-jqgrid-hdiv").outerHeight();
-        var pagerHeight = uiJqgrid.find("#gridpager").outerHeight();
+        var pagerHeight = uiJqgrid.find("#gridpager_" + this._settings.GridId).outerHeight();
         pagerHeight = !pagerHeight ? 0 : pagerHeight;
         var height = parentHeight - headerHeight - pagerHeight - 2;
         var width = pWidth - 0;
