@@ -17,36 +17,38 @@ var GridForm = /** @class */ (function () {
         var _this = this;
         if (!this.Container)
             throw new Error("OnLoad / Не найден основной контейнер.");
-        this.Container.addClass("dpGrid");
-        this.Grid = $("<table id='GridTable_" + this._settings.GridId + "' />");
-        this.Grid.addClass("GridTable");
-        var pager = $("<div/>").attr("id", "gridpager_" + this._settings.GridId);
         this._NoData = $("<div />").addClass("grid--nodata").html("Нет данных для отображения");
         this._currentPage = 1;
         this._rowsToLoad = new Array();
         this._FiltersLocal = new Array();
-        //if (this.Container.attr("class") !== "GridContainer") {
-        //	grCont = this.Container.find("#GridContainer");
-        //}
-        //else
-        //{
-        var grCont = this.Container;
-        //};
-        if (grCont.length === 0)
-            throw new Error("OnLoad / Не найден контейнер для грида.");
-        grCont.append(this.Grid);
-        if (this._settings.ShowPager) {
-            grCont.append(pager);
+        if (this.Container.hasClass("dpGrid")) {
+            //	grCont = this.Container.find("#GridContainer");
         }
-        $.ajax({
-            url: this._settings.UrlColumns,
-            success: function (data) {
-                _this._ColumnsStructure = data;
-                console.log("Columns");
-                console.log(data);
-                _this.PlaceGrid();
+        else {
+            this.Container.addClass("dpGrid");
+        }
+        ;
+        if (this.Grid) {
+            this.ReloadGrid();
+        }
+        else {
+            this.Grid = $("<table id='GridTable_" + this._settings.GridId + "' />");
+            this.Grid.addClass("GridTable");
+            this.Container.append(this.Grid);
+            if (this._settings.ShowPager) {
+                this.Footer = new Footer(this);
             }
-        });
+            ;
+            $.ajax({
+                url: this._settings.UrlColumns,
+                success: function (data) {
+                    _this._ColumnsStructure = data;
+                    console.log("Columns");
+                    console.log(data);
+                    _this.PlaceGrid();
+                }
+            });
+        }
     };
     GridForm.prototype.PlaceGrid = function () {
         var _this = this;
@@ -61,7 +63,7 @@ var GridForm = /** @class */ (function () {
             //	groupField: ['Office'],
             //	groupOrder: ['asc']
             //},
-            pager: "#gridpager_" + this._settings.GridId,
+            //pager: `#gridpager_${this._settings.GridId}`,
             colModel: this._ColumnsStructure,
             rowNum: 300,
             shrinkToFit: false,
@@ -74,6 +76,9 @@ var GridForm = /** @class */ (function () {
             multiSort: false,
             serializeGridData: function (postData) {
                 return _this._PostDataSerialize(postData);
+            },
+            rowattr: function (rd) {
+                return { "data-mydata": JSON.stringify(rd) };
             },
             width: 500,
             loadComplete: function (data) {
@@ -178,10 +183,9 @@ var GridForm = /** @class */ (function () {
         });
     };
     GridForm.prototype._LoadRows = function (rowIds, callback) {
-        this._rowsToLoad = new Array();
-        this._rowsToLoad.concat(rowIds);
+        this._rowsToLoad = [];
         if ($.isArray(rowIds)) {
-            this._rowsToLoad.concat(rowIds);
+            (_a = this._rowsToLoad).push.apply(_a, rowIds);
         }
         else {
             this._rowsToLoad.push(rowIds);
@@ -198,6 +202,7 @@ var GridForm = /** @class */ (function () {
                     callback(data);
             }
         });
+        var _a;
     };
     GridForm.prototype.ReloadGrid = function () {
         this.Grid.trigger("reloadGrid");
@@ -260,7 +265,6 @@ var GridForm = /** @class */ (function () {
             this.FirstLoaded();
             this._isFirstLoad = false;
             this.Selector = new GridSelector(this);
-            this.Footer = new Footer(this);
         }
         if (this._settings.AddButton && this._settings.AddButton.ShowButton) {
             var butCont = $(this.Container.find("table > thead th[role='columnheader']").first());
@@ -363,9 +367,10 @@ var GridForm = /** @class */ (function () {
     GridForm.prototype.AdjustGridSize = function () {
         var uiJqgrid = this.Grid.closest("div.ui-jqgrid");
         var pWidth = uiJqgrid.parent().outerWidth();
-        var parentHeight = uiJqgrid.parent().outerHeight();
+        var parentHeight = this.Container.parent().outerHeight();
+        //const parentHeight = uiJqgrid.parent().outerHeight();
         var headerHeight = uiJqgrid.find("div.ui-jqgrid-hdiv").outerHeight();
-        var pagerHeight = uiJqgrid.find("#gridpager_" + this._settings.GridId).outerHeight();
+        var pagerHeight = this.Container.find("#gridpager").outerHeight();
         pagerHeight = !pagerHeight ? 0 : pagerHeight;
         var height = parentHeight - headerHeight - pagerHeight - 2;
         var width = pWidth - 0;

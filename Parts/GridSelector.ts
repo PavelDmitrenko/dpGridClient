@@ -179,7 +179,8 @@ class GridSelector {
 	}
 
 	private _RefreshCounter() {
-		this._gridInstance.Footer.SetSelected(this._SelectedCount());
+		if (this._gridInstance.Footer)
+			this._gridInstance.Footer.SetSelected(this._SelectedCount());
 	}
 
 }

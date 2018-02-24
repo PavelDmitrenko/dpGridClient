@@ -143,6 +143,7 @@ interface IJqGridJsonReader {
 
 interface JQueryJqGridOptions {
 	postData?: any;
+	rowattr?:any;
 	scroll?: boolean;
 	multiSort?: boolean;
 	rownumbers?: boolean;

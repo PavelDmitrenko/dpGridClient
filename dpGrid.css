@@ -11,6 +11,78 @@
 .dpGrid .edit:before {
   content: "W"; }
 
+.dpGrid #gridpager {
+  flex-shrink: 0;
+  font-size: 11px;
+  height: 25px;
+  color: #67696b;
+  background-color: #f1f2f2;
+  border-top: 1px solid #d1d3d3; }
+  .dpGrid #gridpager #cont {
+    display: none; }
+  .dpGrid #gridpager #recCount {
+    font-weight: bold;
+    line-height: 25px;
+    margin-right: 15px;
+    float: right; }
+  .dpGrid #gridpager #selected {
+    font-weight: bold;
+    line-height: 25px;
+    margin-right: 15px;
+    float: left;
+    display: inline-block;
+    height: 25px;
+    overflow: hidden;
+    position: relative;
+    color: #67696b; }
+  .dpGrid #gridpager #pager {
+    height: 25px;
+    display: inline-block;
+    line-height: 25px;
+    position: absolute;
+    left: 50%;
+    width: 100px;
+    text-align: center;
+    margin-left: -50px;
+    color: #67696b; }
+  .dpGrid #gridpager #prev {
+    font-family: svg;
+    font-size: 9px;
+    font-weight: normal;
+    cursor: pointer; }
+  .dpGrid #gridpager .disabled {
+    color: #d1d3d3;
+    cursor: none; }
+  .dpGrid #gridpager #nums {
+    font-weight: bold;
+    color: #67696b;
+    width: 40px;
+    text-align: center;
+    display: inline-block; }
+  .dpGrid #gridpager #next {
+    font-family: svg;
+    margin-right: 5px;
+    font-size: 9px;
+    font-weight: normal;
+    cursor: pointer; }
+  .dpGrid #gridpager #selected:before {
+    content: "O";
+    font-family: svg;
+    margin-right: 5px;
+    font-size: 9px;
+    font-weight: normal;
+    margin-left: 5px;
+    display: inline-block;
+    color: #5590D2; }
+  .dpGrid #gridpager #recCount:before {
+    content: "P";
+    font-family: svg;
+    margin-right: 5px;
+    font-size: 9px;
+    font-weight: normal;
+    margin-left: 5px;
+    color: #5590D2; }
+
 tr.jqgrow.ui-state-hover .bgContact,
 tr.jqgrow[data-selected='1'] .bgContact {
   background-color: #d4e8f8; }

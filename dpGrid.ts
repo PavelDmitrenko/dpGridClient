@@ -47,42 +47,40 @@ class GridForm implements IBaseGridForm {
 		if (!this.Container)
 			throw new Error("OnLoad / Не найден основной контейнер.");
 
-		this.Container.addClass("dpGrid");
-		this.Grid = $(`<table id='GridTable_${this._settings.GridId}' />`);
-		this.Grid.addClass("GridTable");
-
-		const pager = $("<div/>").attr("id", `gridpager_${this._settings.GridId}`);
 		this._NoData = $("<div />").addClass("grid--nodata").html("Нет данных для отображения");
 		this._currentPage = 1;
 		this._rowsToLoad = new Array();
 		this._FiltersLocal = new Array<IGridFilter>();
 
-		//if (this.Container.attr("class") !== "GridContainer") {
-		//	grCont = this.Container.find("#GridContainer");
-		//}
-		//else
-		//{
-		let grCont = this.Container;
-		//};
-
-		if (grCont.length === 0)
-			throw new Error("OnLoad / Не найден контейнер для грида.");
-
-		grCont.append(this.Grid);
-
-		if (this._settings.ShowPager) {
-			grCont.append(pager);
+		if (this.Container.hasClass("dpGrid")) {
+			//	grCont = this.Container.find("#GridContainer");
 		}
+		else {
+			this.Container.addClass("dpGrid");
+		};
 
-		$.ajax({
-			url: this._settings.UrlColumns,
-			success: (data) => {
-				this._ColumnsStructure = data;
-				console.log("Columns");
-				console.log(data);
-				this.PlaceGrid();
-			}
-		});
+		if (this.Grid) {
+			this.ReloadGrid();
+		} else
+		{
+			this.Grid = $(`<table id='GridTable_${this._settings.GridId}' />`);
+			this.Grid.addClass("GridTable");
+			this.Container.append(this.Grid);
+
+			if (this._settings.ShowPager) {
+				this.Footer = new Footer(this);
+			};
+
+			$.ajax({
+				url: this._settings.UrlColumns,
+				success: (data) => {
+					this._ColumnsStructure = data;
+					console.log("Columns");
+					console.log(data);
+					this.PlaceGrid();
+				}
+			});
+		}
 
 	}
 
@@ -102,7 +100,7 @@ class GridForm implements IBaseGridForm {
 			//	groupOrder: ['asc']
 			//},
 
-			pager: `#gridpager_${this._settings.GridId}`,
+			//pager: `#gridpager_${this._settings.GridId}`,
 			colModel: this._ColumnsStructure,
 			rowNum: 300,
 			shrinkToFit: false,
@@ -116,7 +114,9 @@ class GridForm implements IBaseGridForm {
 			serializeGridData: (postData) => {
 				return this._PostDataSerialize(postData);
 			},
-
+			rowattr: (rd) => {
+				return { "data-mydata": JSON.stringify(rd) };
+			},
 			width: 500,
 
 			loadComplete: (data) => {
@@ -263,13 +263,14 @@ class GridForm implements IBaseGridForm {
 
 	private _LoadRows(rowIds: Array<number> | number, callback: (rows) => void) {
 
-		this._rowsToLoad = new Array();
+		this._rowsToLoad = [];
 
-		this._rowsToLoad.concat(rowIds);
-		if ($.isArray(rowIds)) {
-			this._rowsToLoad.concat(rowIds);
-		} else {
-			(this._rowsToLoad as any).push(rowIds);
+		if ($.isArray(rowIds))
+		{
+			this._rowsToLoad.push(...rowIds as Array<number>);
+		} else
+		{
+			this._rowsToLoad.push(rowIds as number);
 		}
 
 		const postData: any = new Object();
@@ -367,7 +368,6 @@ class GridForm implements IBaseGridForm {
 			this._isFirstLoad = false;
 
 			this.Selector = new GridSelector(this);
-			this.Footer = new Footer(this);
 
 		} 
 
@@ -508,11 +508,12 @@ class GridForm implements IBaseGridForm {
 
 		const pWidth = uiJqgrid.parent().outerWidth();
 
-		const parentHeight = uiJqgrid.parent().outerHeight();
+		const parentHeight = this.Container.parent().outerHeight();
+		//const parentHeight = uiJqgrid.parent().outerHeight();
 
 		const headerHeight = uiJqgrid.find("div.ui-jqgrid-hdiv").outerHeight();
 
-		let pagerHeight = uiJqgrid.find(`#gridpager_${this._settings.GridId}`).outerHeight();
+		let pagerHeight = this.Container.find(`#gridpager`).outerHeight();
 		pagerHeight = !pagerHeight ? 0 : pagerHeight;
 
 		const height = parentHeight - headerHeight - pagerHeight - 2;

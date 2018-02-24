@@ -134,7 +134,8 @@ var GridSelector = /** @class */ (function () {
         });
     };
     GridSelector.prototype._RefreshCounter = function () {
-        this._gridInstance.Footer.SetSelected(this._SelectedCount());
+        if (this._gridInstance.Footer)
+            this._gridInstance.Footer.SetSelected(this._SelectedCount());
     };
     return GridSelector;
 }());

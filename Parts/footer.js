@@ -2,8 +2,19 @@
 var Footer = /** @class */ (function () {
     function Footer(gridInstance) {
         var _this = this;
+        this._container = $("<div/>").attr("id", "gridpager");
+        var pager = $("<div id='cont'>" +
+            "<span id='selected'></span>" +
+            "<span id='pager'>" +
+            "<span id='prev'>Q</span>" +
+            "<span id='nums'></span>" +
+            "<span id='next'>R</span>" +
+            "</span>" +
+            "<span id='recCount'></span>" +
+            "</div>");
+        this._container.append(pager);
+        gridInstance.Container.append(this._container);
         this._gridInstance = gridInstance;
-        this._container = gridInstance.Container.parent().find(".mainpage__gridfooter");
         this._ctrlSelected = this._container.find("#selected");
         this._ctrlArrowNext = this._container.find("#next");
         this._ctrlArrowPrev = this._container.find("#prev");
