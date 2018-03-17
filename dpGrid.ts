@@ -1,10 +1,9 @@
-﻿
-/// <reference path="Parts/GridSelector.ts" />
+﻿/// <reference path="Parts/GridSelector.ts" />
 /// <reference path="parts/interfaces.ts" />
 /// <reference path="parts/footer.ts" />
 /// <reference path="jquery.jqgrid/typings/jqgrid/jqgrid.d.ts" />
 
-
+ 
 class GridForm implements IBaseGridForm {
 
 	public Footer: Footer;
