@@ -5,6 +5,13 @@
 var GridForm = /** @class */ (function () {
     function GridForm() {
     }
+    Object.defineProperty(GridForm.prototype, "GridElement", {
+        get: function () {
+            return this._Grid;
+        },
+        enumerable: true,
+        configurable: true
+    });
     GridForm.prototype.Init = function (settings) {
         this._settings = settings;
         this._OnInit();
@@ -28,29 +35,35 @@ var GridForm = /** @class */ (function () {
             this.Container.addClass("dpGrid");
         }
         ;
-        if (this.Grid) {
+        if (this._Grid) {
             this.ReloadGrid();
         }
         else {
-            this.Grid = $("<table id='GridTable_" + this._settings.GridId + "' />");
-            this.Grid.addClass("GridTable");
-            this.Container.append(this.Grid);
+            this._Grid = $("<table id='GridTable_" + this._settings.GridId + "' />");
+            this._Grid.addClass("GridTable");
+            this.Container.append(this._Grid);
             if (this._settings.ShowPager) {
                 this.Footer = new Footer(this);
             }
             ;
-            $.ajax({
-                url: this._settings.UrlColumns,
-                success: function (data) {
-                    _this._ColumnsStructure = data;
-                    console.log("Columns");
-                    console.log(data);
-                    _this.PlaceGrid();
-                }
-            });
+            if (!this._settings.Columns) {
+                $.ajax({
+                    url: this._settings.UrlColumns,
+                    success: function (data) {
+                        _this._ColumnsStructure = data;
+                        console.log("Columns");
+                        console.log(data);
+                        _this._PlaceGrid();
+                    }
+                });
+            }
+            else {
+                this._ColumnsStructure = this._settings.Columns;
+                this._PlaceGrid();
+            }
         }
     };
-    GridForm.prototype.PlaceGrid = function () {
+    GridForm.prototype._PlaceGrid = function () {
         var _this = this;
         var opt = {
             url: this._settings.UrlData,
@@ -92,9 +105,9 @@ var GridForm = /** @class */ (function () {
                 _this.Selector.GridClick(parseInt(rowid));
             }
         };
-        this.Grid.jqGrid(opt);
+        this._Grid.jqGrid(opt);
         if (this._settings.ShowFilters) {
-            this.Grid.jqGrid("filterToolbar", {
+            this._Grid.jqGrid("filterToolbar", {
                 searchOnEnter: true,
                 stringResult: true,
                 autosearch: true,
@@ -102,8 +115,8 @@ var GridForm = /** @class */ (function () {
                     _this._ScrollLeft = _this.Container.find(".ui-jqgrid-bdiv:not(.frozen-bdiv)").scrollLeft();
                 },
                 afterSearch: function () {
-                    var postData = _this.Grid.jqGrid("getGridParam", "postData");
-                    _this.Grid.jqGrid("getGridParam", "postData");
+                    var postData = _this._Grid.jqGrid("getGridParam", "postData");
+                    _this._Grid.jqGrid("getGridParam", "postData");
                     var filterHolder = jQuery.parseJSON(postData.filters);
                     _this.Container.find(".filteredColumn").removeClass("filteredColumn");
                     for (var i = 0; i < filterHolder.rules.length; i++) {
@@ -116,9 +129,10 @@ var GridForm = /** @class */ (function () {
                 }
             });
         }
-        this.Grid.closest(".ui-jqgrid").find("table.ui-search-table .clearsearchclass").each(function (indx, el) {
+        this._Grid.closest(".ui-jqgrid").find("table.ui-search-table .clearsearchclass").each(function (indx, el) {
             $(el).html("G").attr("title", "Удалить фильтр");
         });
+        this.AdjustGridSize();
     };
     GridForm.prototype._PostDataSerialize = function (postData) {
         var json = JSON.stringify(this._PostDataGet(postData));
@@ -127,10 +141,22 @@ var GridForm = /** @class */ (function () {
     GridForm.prototype.OnInitGrid = function () {
     };
     GridForm.prototype.FilterAdd = function (filter) {
-        this._FiltersLocal.push(filter);
+        var filterExists = false;
+        for (var i = 0; i < this._FiltersLocal.length; i++) {
+            if (this._FiltersLocal[i].ColumnName === filter.ColumnName) {
+                filterExists = true;
+                this._FiltersLocal[i] = filter;
+            }
+        }
+        if (!filterExists)
+            this._FiltersLocal.push(filter);
+    };
+    GridForm.prototype.OnBeforeFilterPost = function (filters) {
+    };
+    GridForm.prototype.SetLabel = function (columnName, text) {
+        this._Grid.jqGrid("setLabel", columnName, text);
     };
     GridForm.prototype._PostDataGet = function (postData) {
-        this.OnBeforePost();
         var obj = new Object();
         var filterHolder = new Array();
         if (postData.filters) {
@@ -138,27 +164,23 @@ var GridForm = /** @class */ (function () {
             filterHolder = rules;
         }
         var Sort = new Object();
-        Sort.Column = this.Grid.jqGrid("getGridParam", "sortname");
-        Sort.Order = this.Grid.jqGrid("getGridParam", "sortorder");
-        this._FiltersLocal.forEach(function (val) {
-            filterHolder.push({ field: val.ColumnName, data: val.Value, op: "bw" });
-        });
+        Sort.Column = this._Grid.jqGrid("getGridParam", "sortname");
+        Sort.Order = this._Grid.jqGrid("getGridParam", "sortorder");
         obj.PostData = new Object();
-        obj.PostData.Filters = filterHolder;
         obj.PostData.Sort = Sort;
         obj.PostData.Page = this._currentPage;
         obj.PostData.AuxData = JSON.stringify(this.SetAuxData());
         obj.PostData.GridId = this._settings.GridId;
         obj.PostData.RowsToLoad = this._rowsToLoad;
-        //data
-        //	:
-        //	"11"
-        //field
-        //	:
-        //	"AuthorName"
-        //op
-        //	:
-        //"bw"
+        this.OnBeforeFilterPost(filterHolder);
+        this._FiltersLocal.forEach(function (val) {
+            filterHolder.push({
+                field: val.ColumnName,
+                data: val.Value,
+                op: "bw"
+            });
+        });
+        obj.PostData.Filters = filterHolder;
         return obj;
     };
     GridForm.prototype.NextPage = function () {
@@ -205,7 +227,7 @@ var GridForm = /** @class */ (function () {
         var _a;
     };
     GridForm.prototype.ReloadGrid = function () {
-        this.Grid.trigger("reloadGrid");
+        this._Grid.trigger("reloadGrid");
     };
     GridForm.prototype.GetClosestRow = function (child) {
         var row = $(child).closest("tr[role='row']");
@@ -216,18 +238,18 @@ var GridForm = /** @class */ (function () {
         return result;
     };
     GridForm.prototype.GetRow = function (rowId) {
-        return this.Grid.find("tr[role='row'][id='" + rowId + "']");
+        return this._Grid.find("tr[role='row'][id='" + rowId + "']");
     };
     GridForm.prototype._PlaceUpdatedRow = function (rowId, row, callback, animate) {
         if (callback === void 0) { callback = null; }
         if (animate === void 0) { animate = true; }
         var tableRow = this.GetRow(rowId);
         if (tableRow.length === 0) {
-            this.Grid.addRowData(row.id, row, "first");
+            this._Grid.addRowData(row.id, row, "first");
             tableRow = this.GetRow(row.id);
         }
         else {
-            this.Grid.setRowData(rowId, row);
+            this._Grid.setRowData(rowId, row);
         }
         if (callback)
             callback();
@@ -254,13 +276,13 @@ var GridForm = /** @class */ (function () {
         //	});
     };
     GridForm.prototype.FocusRow = function (RowId) {
-        this.Grid.jqGrid("setSelection", RowId, true);
+        this._Grid.jqGrid("setSelection", RowId, true);
     };
     GridForm.prototype.DataLoaded = function (data) {
     };
     GridForm.prototype._DataLoaded = function (data) {
         var _this = this;
-        this.RowsContainer = this.Grid.find("> tbody > tr:not(.jqgfirstrow)");
+        this.RowsContainer = this._Grid.find("> tbody > tr:not(.jqgfirstrow)");
         if (this._isFirstLoad) {
             this.FirstLoaded();
             this._isFirstLoad = false;
@@ -290,8 +312,6 @@ var GridForm = /** @class */ (function () {
         });
     };
     GridForm.prototype.SetAuxData = function () {
-    };
-    GridForm.prototype.OnBeforePost = function () {
     };
     GridForm.prototype._EmptyGrid = function () {
         //this.Grid.addRowData(1, {}, "first");
@@ -365,7 +385,7 @@ var GridForm = /** @class */ (function () {
         //});
     };
     GridForm.prototype.AdjustGridSize = function () {
-        var uiJqgrid = this.Grid.closest("div.ui-jqgrid");
+        var uiJqgrid = this._Grid.closest("div.ui-jqgrid");
         var pWidth = uiJqgrid.parent().outerWidth();
         var parentHeight = this.Container.parent().outerHeight();
         //const parentHeight = uiJqgrid.parent().outerHeight();
@@ -374,8 +394,8 @@ var GridForm = /** @class */ (function () {
         pagerHeight = !pagerHeight ? 0 : pagerHeight;
         var height = parentHeight - headerHeight - pagerHeight - 2;
         var width = pWidth - 0;
-        this.Grid.jqGrid("setGridWidth", width);
-        this.Grid.jqGrid("setGridHeight", height);
+        this._Grid.jqGrid("setGridWidth", width);
+        this._Grid.jqGrid("setGridHeight", height);
     };
     ;
     return GridForm;

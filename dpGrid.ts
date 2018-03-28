@@ -19,9 +19,9 @@ class GridForm implements IBaseGridForm {
 	private _UrlExport: string;
 	private _ColumnsStructure: JQueryJqGridColumn[];
 	private _ScrollLeft: number;
-	private _FiltersLocal: Array<IGridFilter>;
+	private _FiltersLocal: Array<IDpGridFilter>;
 
-	public Grid: JQuery;
+	private _Grid: JQuery;
 	protected ShowPager: boolean;
 	public RowsContainer: JQuery;
 	private _NoData: JQuery;
@@ -31,6 +31,10 @@ class GridForm implements IBaseGridForm {
 
 	protected OnContextRowsClick: (itemName: string, targetId) => void;
 	protected OnContextColumnsClick: (itemName: string, targetId) => void;
+
+	public get GridElement():JQuery {
+		return this._Grid;
+	}
 
 	public Init(settings: IGridSettings) {
 		this._settings = settings;
@@ -49,7 +53,7 @@ class GridForm implements IBaseGridForm {
 		this._NoData = $("<div />").addClass("grid--nodata").html("Нет данных для отображения");
 		this._currentPage = 1;
 		this._rowsToLoad = new Array();
-		this._FiltersLocal = new Array<IGridFilter>();
+		this._FiltersLocal = new Array<IDpGridFilter>();
 
 		if (this.Container.hasClass("dpGrid")) {
 			//	grCont = this.Container.find("#GridContainer");
@@ -58,32 +62,40 @@ class GridForm implements IBaseGridForm {
 			this.Container.addClass("dpGrid");
 		};
 
-		if (this.Grid) {
+		if (this._Grid) {
 			this.ReloadGrid();
 		} else
 		{
-			this.Grid = $(`<table id='GridTable_${this._settings.GridId}' />`);
-			this.Grid.addClass("GridTable");
-			this.Container.append(this.Grid);
+			this._Grid = $(`<table id='GridTable_${this._settings.GridId}' />`);
+			this._Grid.addClass("GridTable");
+			this.Container.append(this._Grid);
 
 			if (this._settings.ShowPager) {
 				this.Footer = new Footer(this);
 			};
 
-			$.ajax({
-				url: this._settings.UrlColumns,
-				success: (data) => {
-					this._ColumnsStructure = data;
-					console.log("Columns");
-					console.log(data);
-					this.PlaceGrid();
-				}
-			});
+			if (!this._settings.Columns) {
+				$.ajax({
+					url: this._settings.UrlColumns,
+					success: (data) => {
+						this._ColumnsStructure = data;
+						console.log("Columns");
+						console.log(data);
+						this._PlaceGrid();
+					}
+				});
+			}
+			else
+			{
+				this._ColumnsStructure = this._settings.Columns; 
+				this._PlaceGrid();
+
+			}
 		}
 
 	}
 
-	PlaceGrid(): void {
+	private _PlaceGrid(): void {
 
 		const opt: JQueryJqGridOptions = {
 			url: this._settings.UrlData,
@@ -133,10 +145,10 @@ class GridForm implements IBaseGridForm {
 			}
 		};
 
-		this.Grid.jqGrid(opt);
+		this._Grid.jqGrid(opt);
 
 		if (this._settings.ShowFilters) {
-			this.Grid.jqGrid("filterToolbar", {
+			this._Grid.jqGrid("filterToolbar", {
 				searchOnEnter: true,
 				stringResult: true,
 				autosearch: true,
@@ -146,8 +158,8 @@ class GridForm implements IBaseGridForm {
 				},
 
 				afterSearch: () => {
-					const postData = this.Grid.jqGrid("getGridParam", "postData");
-					this.Grid.jqGrid("getGridParam", "postData");
+					const postData = this._Grid.jqGrid("getGridParam", "postData");
+					this._Grid.jqGrid("getGridParam", "postData");
 					const filterHolder = jQuery.parseJSON(postData.filters);
 					this.Container.find(".filteredColumn").removeClass("filteredColumn");
 
@@ -164,9 +176,11 @@ class GridForm implements IBaseGridForm {
 			});
 		}
 
-		this.Grid.closest(".ui-jqgrid").find("table.ui-search-table .clearsearchclass").each((indx, el) => {
+		this._Grid.closest(".ui-jqgrid").find("table.ui-search-table .clearsearchclass").each((indx, el) => {
 			$(el).html("G").attr("title", "Удалить фильтр");
 		});
+
+		this.AdjustGridSize();
 
 	}
 
@@ -180,17 +194,33 @@ class GridForm implements IBaseGridForm {
 	
 	}
 
-	FilterAdd(filter: IGridFilter) {
-		this._FiltersLocal.push(filter);
+	protected FilterAdd(filter: IDpGridFilter) {
+		let filterExists: boolean = false;
+
+		for (let i = 0; i < this._FiltersLocal.length; i++) {
+			if (this._FiltersLocal[i].ColumnName === filter.ColumnName) {
+				filterExists = true;
+				this._FiltersLocal[i] = filter;
+			}
+		}
+
+		if (!filterExists)
+			this._FiltersLocal.push(filter);
+	}
+
+	protected OnBeforeFilterPost(filters: Array<IGridJqFilter>) {
+
+	}
+
+	public SetLabel(columnName:string, text:string) {
+		this._Grid.jqGrid("setLabel", columnName, text);
 	}
 
 	private _PostDataGet(postData: any) {
 
-		this.OnBeforePost();
-
 		const obj: any = new Object();
 
-		let filterHolder: Array<IGridJqFilter> = new Array<IGridJqFilter>();
+		let filterHolder = new Array<IGridJqFilter>();
 
 		if (postData.filters) {
 			const rules = JSON.parse(postData.filters).rules;
@@ -198,15 +228,12 @@ class GridForm implements IBaseGridForm {
 		}
 
 		const Sort: any = new Object();
-		Sort.Column = this.Grid.jqGrid("getGridParam", "sortname");
-		Sort.Order = this.Grid.jqGrid("getGridParam", "sortorder");
+		Sort.Column = this._Grid.jqGrid("getGridParam", "sortname");
+		Sort.Order = this._Grid.jqGrid("getGridParam", "sortorder");
 
-		this._FiltersLocal.forEach((val) => {
-			filterHolder.push({ field: val.ColumnName, data: val.Value, op: "bw" });
-		});
+		
 
 		obj.PostData = new Object();
-		obj.PostData.Filters = filterHolder;
 		obj.PostData.Sort = Sort;
 		obj.PostData.Page = this._currentPage;
 
@@ -215,16 +242,16 @@ class GridForm implements IBaseGridForm {
 
 		obj.PostData.RowsToLoad = this._rowsToLoad;
 
-		
-		//data
-		//	:
-		//	"11"
-		//field
-		//	:
-		//	"AuthorName"
-		//op
-		//	:
-		//"bw"
+		this.OnBeforeFilterPost(filterHolder);
+		this._FiltersLocal.forEach((val) => {
+			filterHolder.push({
+				field: val.ColumnName,
+				data: val.Value,
+				op: "bw"
+			});
+		});
+
+		obj.PostData.Filters = filterHolder;
 
 		return obj;
 	}
@@ -289,7 +316,7 @@ class GridForm implements IBaseGridForm {
 	}
 
 	ReloadGrid() {
-		this.Grid.trigger("reloadGrid");
+		this._Grid.trigger("reloadGrid");
 	}
 
 
@@ -305,7 +332,7 @@ class GridForm implements IBaseGridForm {
 	}
 
 	public GetRow(rowId: number): JQuery {
-		return this.Grid.find(`tr[role='row'][id='${rowId}']`);
+		return this._Grid.find(`tr[role='row'][id='${rowId}']`);
 	}
 
 	private _PlaceUpdatedRow(rowId: number, row: any, callback = null, animate: boolean = true) {
@@ -313,10 +340,10 @@ class GridForm implements IBaseGridForm {
 		let tableRow = this.GetRow(rowId);
 
 		if (tableRow.length === 0) {
-			this.Grid.addRowData(row.id, row, "first");
+			this._Grid.addRowData(row.id, row, "first");
 			tableRow = this.GetRow(row.id);
 		} else {
-			this.Grid.setRowData(rowId, row);
+			this._Grid.setRowData(rowId, row);
 		}
 
 		if (callback)
@@ -351,7 +378,7 @@ class GridForm implements IBaseGridForm {
 	}
 
 	FocusRow(RowId: number) {
-		this.Grid.jqGrid("setSelection", RowId, true);
+		this._Grid.jqGrid("setSelection", RowId, true);
 	}
 
 	DataLoaded(data?: any) {
@@ -360,7 +387,7 @@ class GridForm implements IBaseGridForm {
 
 	private _DataLoaded(data?: any) {
 
-		this.RowsContainer = this.Grid.find("> tbody > tr:not(.jqgfirstrow)");
+		this.RowsContainer = this._Grid.find("> tbody > tr:not(.jqgfirstrow)");
 
 		if (this._isFirstLoad) {
 			this.FirstLoaded();
@@ -407,11 +434,7 @@ class GridForm implements IBaseGridForm {
 	SetAuxData() {
 
 	}
-
-	OnBeforePost() {
-
-	}
-
+	
 	private _EmptyGrid() {
 		//this.Grid.addRowData(1, {}, "first");
 		const haveFrozen = this.Container.find("#GridTable_frozen").length !== 0;
@@ -503,7 +526,7 @@ class GridForm implements IBaseGridForm {
 	
 	AdjustGridSize() {
 		 
-		const uiJqgrid = this.Grid.closest("div.ui-jqgrid");
+		const uiJqgrid = this._Grid.closest("div.ui-jqgrid");
 
 		const pWidth = uiJqgrid.parent().outerWidth();
 
@@ -518,8 +541,8 @@ class GridForm implements IBaseGridForm {
 		const height = parentHeight - headerHeight - pagerHeight - 2;
 		const width = pWidth - 0;
 
-		this.Grid.jqGrid("setGridWidth", width);
-		this.Grid.jqGrid("setGridHeight", height);
+		this._Grid.jqGrid("setGridWidth", width);
+		this._Grid.jqGrid("setGridHeight", height);
 	};
 
 

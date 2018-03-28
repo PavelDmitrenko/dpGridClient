@@ -7,7 +7,7 @@
 
 // http://www.trirand.com/jqgridwiki/doku.php?id=wiki:colmodel_options
 interface JQueryJqGridColumn {
-
+	resizable?:boolean;
 	/**
 	 * Defines the alignment of the cell in the Body layer, not in header cell. Possible values: left, center, right
 	 */

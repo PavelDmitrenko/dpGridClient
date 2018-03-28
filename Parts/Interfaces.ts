@@ -1,11 +1,12 @@
 ﻿interface IBaseGridForm {
-	PlaceGrid(): void;
 	DataLoaded(data?: any): void;
 	ReloadRows(rows: Array<number>): void;
 	RemoveRow(rowId: number): void;
 	FocusRow(rowId: number): void;
 	ReloadGrid(): void;
-	OnInitGrid():void;
+	OnInitGrid(): void;
+	SetLabel(columnName: string, text: string): void;
+	readonly GridElement: JQuery;
 }
 
 interface IContextMenu {
@@ -20,7 +21,7 @@ interface IGridJqFilter {
 	op: string;
 }
 
-interface IGridFilter {
+interface IDpGridFilter {
 	ColumnName: string;
 	Value: any;
 }
@@ -34,10 +35,13 @@ interface IGridSettings {
 	GridId: string;
 	UrlData: string;
 	UrlColumns: string;
+	Columns?: Array<JQueryJqGridColumn>;
+	Data?: Array<any>;
 	ShowPager?: boolean;
 	ShowFilters?: boolean;
 	AddButton?:IGridAddButtonSettings;
 }
+
 
 interface IGridAddButtonSettings {
 	ShowButton?: boolean;
