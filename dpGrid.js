@@ -71,12 +71,6 @@ var GridForm = /** @class */ (function () {
             loadonce: false,
             mtype: "POST",
             ajaxGridOptions: { contentType: "application/json" },
-            //grouping: true,
-            //groupingView: {
-            //	groupField: ['Office'],
-            //	groupOrder: ['asc']
-            //},
-            //pager: `#gridpager_${this._settings.GridId}`,
             colModel: this._ColumnsStructure,
             rowNum: 300,
             shrinkToFit: false,
@@ -105,6 +99,14 @@ var GridForm = /** @class */ (function () {
                 _this.Selector.GridClick(parseInt(rowid));
             }
         };
+        // Data source is array
+        if (this._settings.Data) {
+            opt.url = null;
+            opt.data = this._settings.Data;
+            opt.loadonce = true;
+            opt.datatype = "local";
+            opt.localReader = { repeatitems: true };
+        }
         this._Grid.jqGrid(opt);
         if (this._settings.ShowFilters) {
             this._Grid.jqGrid("filterToolbar", {
@@ -227,6 +229,9 @@ var GridForm = /** @class */ (function () {
         var _a;
     };
     GridForm.prototype.ReloadGrid = function () {
+        if (this._settings.Data) {
+            this._Grid.jqGrid("setGridParam", { data: this._settings.Data });
+        }
         this._Grid.trigger("reloadGrid");
     };
     GridForm.prototype.GetClosestRow = function (child) {

@@ -3,7 +3,7 @@
 /// <reference path="parts/footer.ts" />
 /// <reference path="jquery.jqgrid/typings/jqgrid/jqgrid.d.ts" />
 
- 
+
 class GridForm implements IBaseGridForm {
 
 	public Footer: Footer;
@@ -13,7 +13,7 @@ class GridForm implements IBaseGridForm {
 	private _currentPage: number;
 	private _rowsToLoad: Array<number>;
 
-	private _isFirstLoad: boolean; 
+	private _isFirstLoad: boolean;
 	private _settings: IGridSettings;
 
 	private _UrlExport: string;
@@ -32,7 +32,7 @@ class GridForm implements IBaseGridForm {
 	protected OnContextRowsClick: (itemName: string, targetId) => void;
 	protected OnContextColumnsClick: (itemName: string, targetId) => void;
 
-	public get GridElement():JQuery {
+	public get GridElement(): JQuery {
 		return this._Grid;
 	}
 
@@ -64,8 +64,7 @@ class GridForm implements IBaseGridForm {
 
 		if (this._Grid) {
 			this.ReloadGrid();
-		} else
-		{
+		} else {
 			this._Grid = $(`<table id='GridTable_${this._settings.GridId}' />`);
 			this._Grid.addClass("GridTable");
 			this.Container.append(this._Grid);
@@ -85,9 +84,8 @@ class GridForm implements IBaseGridForm {
 					}
 				});
 			}
-			else
-			{
-				this._ColumnsStructure = this._settings.Columns; 
+			else {
+				this._ColumnsStructure = this._settings.Columns;
 				this._PlaceGrid();
 
 			}
@@ -98,20 +96,12 @@ class GridForm implements IBaseGridForm {
 	private _PlaceGrid(): void {
 
 		const opt: JQueryJqGridOptions = {
+
 			url: this._settings.UrlData,
 			datatype: "json",
 			loadonce: false,
 			mtype: "POST",
-
 			ajaxGridOptions: { contentType: "application/json" },
-
-			//grouping: true,
-			//groupingView: {
-			//	groupField: ['Office'],
-			//	groupOrder: ['asc']
-			//},
-
-			//pager: `#gridpager_${this._settings.GridId}`,
 			colModel: this._ColumnsStructure,
 			rowNum: 300,
 			shrinkToFit: false,
@@ -121,7 +111,7 @@ class GridForm implements IBaseGridForm {
 			scroll: false,
 			rownumbers: false,
 			treeGrid: false,
-			multiSort:false,
+			multiSort: false,
 			serializeGridData: (postData) => {
 				return this._PostDataSerialize(postData);
 			},
@@ -137,13 +127,24 @@ class GridForm implements IBaseGridForm {
 			onInitGrid: () => {
 				this._isFirstLoad = true;
 				this.OnInitGrid();
-			
+
 			},
 
 			onSelectRow: (rowid: string, status: any, e: Event) => {
 				this.Selector.GridClick(parseInt(rowid));
 			}
 		};
+
+		// Data source is array
+		if (this._settings.Data) {
+			opt.url = null;
+			opt.data = this._settings.Data;
+			opt.loadonce = true;
+			opt.datatype = "local";
+
+			opt.localReader = { repeatitems: true }
+
+		}
 
 		this._Grid.jqGrid(opt);
 
@@ -184,14 +185,13 @@ class GridForm implements IBaseGridForm {
 
 	}
 
-	private _PostDataSerialize(postData: any)
-	{
+	private _PostDataSerialize(postData: any) {
 		const json = JSON.stringify(this._PostDataGet(postData));
 		return json;
 	}
 
 	OnInitGrid() {
-	
+
 	}
 
 	protected FilterAdd(filter: IDpGridFilter) {
@@ -212,7 +212,7 @@ class GridForm implements IBaseGridForm {
 
 	}
 
-	public SetLabel(columnName:string, text:string) {
+	public SetLabel(columnName: string, text: string) {
 		this._Grid.jqGrid("setLabel", columnName, text);
 	}
 
@@ -231,7 +231,7 @@ class GridForm implements IBaseGridForm {
 		Sort.Column = this._Grid.jqGrid("getGridParam", "sortname");
 		Sort.Order = this._Grid.jqGrid("getGridParam", "sortorder");
 
-		
+
 
 		obj.PostData = new Object();
 		obj.PostData.Sort = Sort;
@@ -268,7 +268,7 @@ class GridForm implements IBaseGridForm {
 	}
 
 
-	ReloadRows(rowsIds: Array<number> | number): void {
+	public ReloadRows(rowsIds: Array<number> | number): void {
 
 		this._LoadRows(rowsIds, (data) => {
 
@@ -291,11 +291,9 @@ class GridForm implements IBaseGridForm {
 
 		this._rowsToLoad = [];
 
-		if ($.isArray(rowIds))
-		{
+		if ($.isArray(rowIds)) {
 			this._rowsToLoad.push(...rowIds as Array<number>);
-		} else
-		{
+		} else {
 			this._rowsToLoad.push(rowIds as number);
 		}
 
@@ -315,7 +313,12 @@ class GridForm implements IBaseGridForm {
 
 	}
 
-	ReloadGrid() {
+	public ReloadGrid() {
+
+		if (this._settings.Data) {
+			this._Grid.jqGrid("setGridParam", { data: this._settings.Data });
+		}
+
 		this._Grid.trigger("reloadGrid");
 	}
 
@@ -355,7 +358,7 @@ class GridForm implements IBaseGridForm {
 				.animate({ opacity: "0.5" }, 150)
 				.animate({ opacity: "1" }, 150);
 		}
-	} 
+	}
 
 	private _FixFrozeColumns() {
 		const bdiv = this.Container.find(".ui-jqgrid-bdiv");
@@ -395,10 +398,9 @@ class GridForm implements IBaseGridForm {
 
 			this.Selector = new GridSelector(this);
 
-		} 
+		}
 
-		if (this._settings.AddButton && this._settings.AddButton.ShowButton)
-		{
+		if (this._settings.AddButton && this._settings.AddButton.ShowButton) {
 
 			const butCont = $(this.Container.find("table > thead th[role='columnheader']").first());
 
@@ -410,7 +412,7 @@ class GridForm implements IBaseGridForm {
 			});
 
 		}
-		
+
 		if (data && data.records === 0) {
 			this._EmptyGrid();
 		};
@@ -434,7 +436,7 @@ class GridForm implements IBaseGridForm {
 	SetAuxData() {
 
 	}
-	
+
 	private _EmptyGrid() {
 		//this.Grid.addRowData(1, {}, "first");
 		const haveFrozen = this.Container.find("#GridTable_frozen").length !== 0;
@@ -523,9 +525,9 @@ class GridForm implements IBaseGridForm {
 
 	}
 
-	
+
 	AdjustGridSize() {
-		 
+
 		const uiJqgrid = this._Grid.closest("div.ui-jqgrid");
 
 		const pWidth = uiJqgrid.parent().outerWidth();

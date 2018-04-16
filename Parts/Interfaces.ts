@@ -28,22 +28,22 @@ interface IDpGridFilter {
 
 interface IDpGridRow {
 	html: JQuery;
-	id:number|string;
+	id: number | string;
 }
 
 interface IGridSettings {
 	GridId: string;
-	UrlData: string;
-	UrlColumns: string;
+	UrlData?: string;
+	UrlColumns?: string;
 	Columns?: Array<JQueryJqGridColumn>;
 	Data?: Array<any>;
 	ShowPager?: boolean;
 	ShowFilters?: boolean;
-	AddButton?:IGridAddButtonSettings;
+	AddButton?: IGridAddButtonSettings;
 }
 
 
 interface IGridAddButtonSettings {
 	ShowButton?: boolean;
-	OnClick?:()=>void;
+	OnClick?: () => void;
 }

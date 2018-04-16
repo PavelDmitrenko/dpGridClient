@@ -7,7 +7,7 @@
 
 // http://www.trirand.com/jqgridwiki/doku.php?id=wiki:colmodel_options
 interface JQueryJqGridColumn {
-	resizable?:boolean;
+	resizable?: boolean;
 	/**
 	 * Defines the alignment of the cell in the Body layer, not in header cell. Possible values: left, center, right
 	 */
@@ -143,11 +143,11 @@ interface IJqGridJsonReader {
 
 interface JQueryJqGridOptions {
 	postData?: any;
-	rowattr?:any;
+	rowattr?: any;
 	scroll?: boolean;
 	multiSort?: boolean;
 	rownumbers?: boolean;
-	treeGrid?:boolean;
+	treeGrid?: boolean;
 	emptyrecords?: any;
 	onInitGrid?: any;
 	groupingView?: any;
@@ -163,7 +163,7 @@ interface JQueryJqGridOptions {
 	resizable?: any;
 	serializeGridData?: any;
 	onCellSelect?: any;
-
+	localReader?: any;
 	/**
 	 * When set to true encodes (html encode) the incoming (from server) and posted data (from editing modules).
 	 */
