@@ -85,11 +85,17 @@ var GridForm = /** @class */ (function () {
                 return _this._PostDataSerialize(postData);
             },
             rowattr: function (rd) {
-                return { "data-mydata": JSON.stringify(rd) };
+                //return { "data-mydata": JSON.stringify(rd) };
+                if (_this._settings.RowAttr) {
+                }
+                return { "class": "myAltRowClass" };
             },
             width: 500,
             loadComplete: function (data) {
                 _this._DataLoaded(data);
+            },
+            gridComplete: function () {
+                _this._GridComplete();
             },
             onInitGrid: function () {
                 _this._isFirstLoad = true;
@@ -105,7 +111,9 @@ var GridForm = /** @class */ (function () {
             opt.data = this._settings.Data;
             opt.loadonce = true;
             opt.datatype = "local";
-            opt.localReader = { repeatitems: true };
+            opt.localReader = {
+                repeatitems: true
+            };
         }
         this._Grid.jqGrid(opt);
         if (this._settings.ShowFilters) {
@@ -195,7 +203,14 @@ var GridForm = /** @class */ (function () {
     };
     GridForm.prototype.ReloadRows = function (rowsIds) {
         var _this = this;
-        this._LoadRows(rowsIds, function (data) {
+        var array = [];
+        if ($.isArray(rowsIds)) {
+            array.push.apply(array, rowsIds);
+        }
+        else {
+            array.push(rowsIds);
+        }
+        this._LoadRows(array, function (data) {
             data.rows.forEach(function (val) {
                 _this._PlaceUpdatedRow(val.id, val, null, true);
             });
@@ -207,6 +222,7 @@ var GridForm = /** @class */ (function () {
         });
     };
     GridForm.prototype._LoadRows = function (rowIds, callback) {
+        var _a;
         this._rowsToLoad = [];
         if ($.isArray(rowIds)) {
             (_a = this._rowsToLoad).push.apply(_a, rowIds);
@@ -226,7 +242,6 @@ var GridForm = /** @class */ (function () {
                     callback(data);
             }
         });
-        var _a;
     };
     GridForm.prototype.ReloadGrid = function () {
         if (this._settings.Data) {
@@ -284,6 +299,11 @@ var GridForm = /** @class */ (function () {
         this._Grid.jqGrid("setSelection", RowId, true);
     };
     GridForm.prototype.DataLoaded = function (data) {
+    };
+    GridForm.prototype.GridComplete = function () {
+    };
+    GridForm.prototype._GridComplete = function () {
+        this.GridComplete();
     };
     GridForm.prototype._DataLoaded = function (data) {
         var _this = this;

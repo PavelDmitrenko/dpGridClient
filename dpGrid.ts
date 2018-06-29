@@ -11,7 +11,7 @@ class GridForm implements IBaseGridForm {
 	public Container: JQuery;
 
 	private _currentPage: number;
-	private _rowsToLoad: Array<number>;
+	private _rowsToLoad: Array<any> ;
 
 	private _isFirstLoad: boolean;
 	private _settings: IGridSettings;
@@ -116,7 +116,11 @@ class GridForm implements IBaseGridForm {
 				return this._PostDataSerialize(postData);
 			},
 			rowattr: (rd) => {
-				return { "data-mydata": JSON.stringify(rd) };
+				//return { "data-mydata": JSON.stringify(rd) };
+				if (this._settings.RowAttr) {
+
+				}
+				return {"class": "myAltRowClass"};
 			},
 			width: 500,
 
@@ -124,10 +128,13 @@ class GridForm implements IBaseGridForm {
 				this._DataLoaded(data);
 			},
 
+			gridComplete: () => {
+				this._GridComplete();
+			},
+
 			onInitGrid: () => {
 				this._isFirstLoad = true;
 				this.OnInitGrid();
-
 			},
 
 			onSelectRow: (rowid: string, status: any, e: Event) => {
@@ -141,9 +148,9 @@ class GridForm implements IBaseGridForm {
 			opt.data = this._settings.Data;
 			opt.loadonce = true;
 			opt.datatype = "local";
-
-			opt.localReader = { repeatitems: true }
-
+			opt.localReader = {
+				repeatitems: true
+			}
 		}
 
 		this._Grid.jqGrid(opt);
@@ -268,9 +275,17 @@ class GridForm implements IBaseGridForm {
 	}
 
 
-	public ReloadRows(rowsIds: Array<number> | number): void {
+	public ReloadRows(rowsIds: Array<any> | any): void {
 
-		this._LoadRows(rowsIds, (data) => {
+		const array = [];
+
+		if ($.isArray(rowsIds)) {
+			array.push(...rowsIds);
+		} else {
+			array.push(rowsIds);
+		}
+
+		this._LoadRows(array, (data) => {
 
 			data.rows.forEach((val) => {
 				this._PlaceUpdatedRow(val.id, val, null, true);
@@ -287,14 +302,14 @@ class GridForm implements IBaseGridForm {
 		});
 	}
 
-	private _LoadRows(rowIds: Array<number> | number, callback: (rows) => void) {
+	private _LoadRows(rowIds: Array<any>, callback: (rows) => void) {
 
 		this._rowsToLoad = [];
 
 		if ($.isArray(rowIds)) {
-			this._rowsToLoad.push(...rowIds as Array<number>);
+			this._rowsToLoad.push(...rowIds);
 		} else {
-			this._rowsToLoad.push(rowIds as number);
+			this._rowsToLoad.push(rowIds );
 		}
 
 		const postData: any = new Object();
@@ -386,6 +401,15 @@ class GridForm implements IBaseGridForm {
 
 	DataLoaded(data?: any) {
 
+	}
+
+	
+	public GridComplete() {
+
+	}
+
+	private _GridComplete() {
+		this.GridComplete();
 	}
 
 	private _DataLoaded(data?: any) {

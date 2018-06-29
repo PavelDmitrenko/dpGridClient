@@ -5,6 +5,7 @@
 	FocusRow(rowId: number): void;
 	ReloadGrid(): void;
 	OnInitGrid(): void;
+	GridComplete():void;
 	SetLabel(columnName: string, text: string): void;
 	readonly GridElement: JQuery;
 }
@@ -40,6 +41,7 @@ interface IGridSettings {
 	ShowPager?: boolean;
 	ShowFilters?: boolean;
 	AddButton?: IGridAddButtonSettings;
+	RowAttr?:() => void;
 }
 
 
