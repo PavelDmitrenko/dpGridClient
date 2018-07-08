@@ -1,4 +1,5 @@
-﻿/// <reference path="Parts/GridSelector.ts" />
+﻿/// <reference path="parts/columnsstates.ts" />
+/// <reference path="Parts/GridSelector.ts" />
 /// <reference path="parts/interfaces.ts" />
 /// <reference path="parts/footer.ts" />
 /// <reference path="jquery.jqgrid/typings/jqgrid/jqgrid.d.ts" />
@@ -20,6 +21,7 @@ class GridForm implements IBaseGridForm {
 	private _ColumnsStructure: JQueryJqGridColumn[];
 	private _ScrollLeft: number;
 	private _FiltersLocal: Array<IDpGridFilter>;
+	private _columnsStates: dpGridColumnsStates;
 
 	private _Grid: JQuery;
 	protected ShowPager: boolean;
@@ -38,12 +40,14 @@ class GridForm implements IBaseGridForm {
 
 	public Init(settings: IGridSettings) {
 		this._settings = settings;
+		this._columnsStates = new dpGridColumnsStates(this._settings.GridId, this._settings.ColumnsStatesSettings);
 		this._OnInit();
 	}
 
 	protected ColumnsStructureGet() {
 		return this._ColumnsStructure;
 	};
+
 
 	private _OnInit() {
 
@@ -73,22 +77,27 @@ class GridForm implements IBaseGridForm {
 				this.Footer = new Footer(this);
 			};
 
-			if (!this._settings.Columns) {
-				$.ajax({
-					url: this._settings.UrlColumns,
-					success: (data) => {
-						this._ColumnsStructure = data;
-						console.log("Columns");
-						console.log(data);
+			$.when(this._columnsStates.Load())
+				.then(() => {
+
+					if (!this._settings.Columns) {
+						$.ajax({
+							url: this._settings.UrlColumns,
+							success: (data) => {
+								//data[2].firstsortorder = "asc";
+								this._ColumnsStructure = data;
+								console.log("Columns");
+								console.log(data);
+								this._PlaceGrid();
+							}
+						});
+
+					}
+					else {
+						this._ColumnsStructure = this._settings.Columns;
 						this._PlaceGrid();
 					}
-				});
-			}
-			else {
-				this._ColumnsStructure = this._settings.Columns;
-				this._PlaceGrid();
-
-			}
+			});
 		}
 
 	}
@@ -110,11 +119,15 @@ class GridForm implements IBaseGridForm {
 			gridview: true,
 			scroll: false,
 			rownumbers: false,
+			sortable: true,
 			treeGrid: false,
 			multiSort: false,
+			sortname:this._columnsStates.ColumnSortName,
+			sortorder: this._columnsStates.ColumnSortOrder,
 			serializeGridData: (postData) => {
 				return this._PostDataSerialize(postData);
 			},
+
 			rowattr: (rd) => {
 				//return { "data-mydata": JSON.stringify(rd) };
 				if (this._settings.RowAttr) {
@@ -122,6 +135,7 @@ class GridForm implements IBaseGridForm {
 				}
 				return {"class": "myAltRowClass"};
 			},
+
 			width: 500,
 
 			loadComplete: (data) => {
@@ -136,11 +150,19 @@ class GridForm implements IBaseGridForm {
 				this._isFirstLoad = true;
 				this.OnInitGrid();
 			},
+			
+			onSortCol: (colName, colIndex,sortorder) => 
+			{
+				this._SaveColumnsStates();
+			},
 
 			onSelectRow: (rowid: string, status: any, e: Event) => {
 				this.Selector.GridClick(parseInt(rowid));
 			}
 		};
+
+		//this._Grid.jqGrid('setGridParam', { sortname: 'ClientName,', sortorder: 'desc' });
+		//this._Grid.jqGrid('sortGrid','colName', false, 'asc');
 
 		// Data source is array
 		if (this._settings.Data) {
@@ -190,6 +212,11 @@ class GridForm implements IBaseGridForm {
 
 		this.AdjustGridSize();
 
+	}
+
+	private _SaveColumnsStates(): void {
+		const gridParams = this._Grid.jqGrid("getGridParam");
+		this._columnsStates.Save(gridParams);
 	}
 
 	private _PostDataSerialize(postData: any) {

@@ -42,6 +42,12 @@ interface IGridSettings {
 	ShowFilters?: boolean;
 	AddButton?: IGridAddButtonSettings;
 	RowAttr?:() => void;
+	ColumnsStatesSettings?: IDpGridColumnsStatesSettings;
+}
+
+interface IDpGridColumnsStatesSettings {
+	urlSave:string;
+	urlLoad:string;
 }
 
 

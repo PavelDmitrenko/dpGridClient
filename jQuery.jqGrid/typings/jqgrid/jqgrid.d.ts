@@ -144,12 +144,14 @@ interface IJqGridJsonReader {
 interface JQueryJqGridOptions {
 	postData?: any;
 	rowattr?: any;
+	sortable?:boolean;
 	scroll?: boolean;
 	multiSort?: boolean;
 	rownumbers?: boolean;
 	treeGrid?: boolean;
 	emptyrecords?: any;
 	onInitGrid?: any;
+	onSortCol?: any;
 	groupingView?: any;
 	cellLayout?: any;
 	styleUI?: any;
