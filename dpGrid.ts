@@ -358,6 +358,7 @@ class GridForm implements IBaseGridForm {
 	public ReloadGrid() {
 
 		if (this._settings.Data) {
+			this._Grid.jqGrid("clearGridData");
 			this._Grid.jqGrid("setGridParam", { data: this._settings.Data });
 		}
 

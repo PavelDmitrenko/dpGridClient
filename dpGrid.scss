@@ -18,6 +18,23 @@
 		content: "W";
 	}
 
+	.remove {
+		font-family: svg;
+		font-size: 7px;
+		text-align: center !important;
+		color: silver;
+		cursor: pointer;
+	}
+
+	.remove:hover {
+		color: #4c8d9a;
+	}
+
+	.remove:before {
+		content: "G";
+	}
+
+
 	#gridpager {
 		flex-shrink: 0;
 		font-size: 11px;
