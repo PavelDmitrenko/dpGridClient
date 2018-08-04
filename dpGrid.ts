@@ -350,6 +350,8 @@ class GridForm implements IBaseGridForm {
 			success: (data) => {
 				if (callback)
 					callback(data);
+
+				this._rowsToLoad = [];
 			}
 		});
 
