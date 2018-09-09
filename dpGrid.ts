@@ -228,7 +228,8 @@ class GridForm implements IBaseGridForm {
 
 	}
 
-	protected FilterAdd(filter: IDpGridFilter) {
+	protected FilterAdd(filter: IDpGridFilter) 
+	{
 		let filterExists: boolean = false;
 
 		for (let i = 0; i < this._FiltersLocal.length; i++) {
@@ -242,12 +243,28 @@ class GridForm implements IBaseGridForm {
 			this._FiltersLocal.push(filter);
 	}
 
+	protected FilterRemove(columnName: string) 
+	{
+		for(let i = this._FiltersLocal.length - 1; i >= 0; i--) {
+			if(this._FiltersLocal[i].ColumnName === columnName) {
+				this._FiltersLocal.splice(i, 1);
+			}
+		}
+
+	}
+
 	protected OnBeforeFilterPost(filters: Array<IGridJqFilter>) {
 
 	}
 
 	public SetLabel(columnName: string, text: string) {
 		this._Grid.jqGrid("setLabel", columnName, text);
+	}
+
+	public SetTooltip(columnName: string, text: string) 
+	{
+		const colId = `#jqgh_GridTable_${this._settings.GridId}_${columnName}`;
+		this.Container.find(colId).attr("title", text);
 	}
 
 	private _PostDataGet(postData: any) {
