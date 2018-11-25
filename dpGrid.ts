@@ -396,7 +396,7 @@ class GridForm implements IBaseGridForm {
 		return result;
 	}
 
-	public GetRow(rowId: number): JQuery {
+	public GetRow(rowId: number | string): JQuery {
 		return this._Grid.find(`tr[role='row'][id='${rowId}']`);
 	}
 
@@ -427,18 +427,18 @@ class GridForm implements IBaseGridForm {
 		bdiv.scrollTop(bdiv.scrollTop()); // FrozenColumns Fix
 	}
 
-	RemoveRow(RowId: number) {
+	RemoveRow(RowId: number | string) {
 
 		const tableRow = this.GetRow(RowId);
 
-		//tableRow.animate({ opacity: 0.5 }, 150)
-		//	.animate({ opacity: "1" }, 150)
-		//	.animate({ opacity: "0.5" }, 150)
-		//	.animate({ opacity: "1" },
-		//	150,
-		//	() => {
-		//		this.Grid.jqGrid("delRowData", RowId);
-		//	});
+		tableRow.animate({ opacity: 0.5 }, 150)
+			.animate({ opacity: "1" }, 150)
+			.animate({ opacity: "0.5" }, 150)
+			.animate({ opacity: "1" },
+			150,
+			() => {
+				this._Grid.jqGrid("delRowData", RowId);
+			});
 
 	}
 
