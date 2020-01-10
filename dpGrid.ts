@@ -1,8 +1,10 @@
-﻿/// <reference path="parts/columnsstates.ts" />
+﻿/// <reference path="../typings/jquery.d.ts" />
+/// <reference path="parts/columnsstates.ts" />
 /// <reference path="Parts/GridSelector.ts" />
 /// <reference path="parts/interfaces.ts" />
 /// <reference path="parts/footer.ts" />
 /// <reference path="jquery.jqgrid/typings/jqgrid/jqgrid.d.ts" />
+/// <reference path="../typings/jqgrid.d.ts" />
 
 
 class GridForm implements IBaseGridForm {
@@ -112,7 +114,7 @@ class GridForm implements IBaseGridForm {
 			mtype: "POST",
 			ajaxGridOptions: { contentType: "application/json" },
 			colModel: this._ColumnsStructure,
-			rowNum: 300,
+			rowNum: 1000,
 			shrinkToFit: false,
 			regional: "ru",
 			viewrecords: true,
@@ -157,7 +159,23 @@ class GridForm implements IBaseGridForm {
 			},
 
 			onSelectRow: (rowid: string, status: any, e: Event) => {
-				this.Selector.GridClick(parseInt(rowid));
+
+				const button = (e as any).originalEvent.button;
+				const row = parseInt(rowid);
+
+				if (button === 0) // left click
+				{
+					this.Selector.GridClick(row);
+				}
+				else if (button === 2) // right click
+				{
+					const selected = this.Selector.GetSelected();
+				
+					if (!selected.length || (selected.length === 1 && selected[0] !== row)) {
+						this.Selector.GridClick(row);
+					}
+					
+				}
 			}
 		};
 
@@ -541,27 +559,7 @@ class GridForm implements IBaseGridForm {
 		} else {
 			divMenu.replaceWith(tmpl);
 		}
-
-		divMenu = this.Container.find("#contextMenuColumns");
-
-		//divMenu.dxContextMenu({
-		//	items: this._ContextMenuColumns.items,
-		//	target: this.Container.find(this._ContextMenuColumns.selector),
-		//	onItemClick: (e) => {
-		//		const id = divMenu.attr("target");
-		//		this._ContextMenuColumns.onSelect(e.itemData.text, id);
-		//	},
-
-		//	onPositioning: (e) => {
-		//		let el = $(e.jQueryEvent.target);
-		//		if (!el.is("th")) {
-		//			el = el.closest("th");
-		//		}
-		//		divMenu.attr("target", el.attr("id"));
-		//	}
-		//});
-
-	}
+		}
 
 	ContextMenuRowsInit() {
 
@@ -576,23 +574,6 @@ class GridForm implements IBaseGridForm {
 		} else {
 			divMenu.replaceWith(tmpl);
 		}
-
-		divMenu = this.Container.find("#contextMenu");
-
-		//divMenu.dxContextMenu({
-		//	items: this._ContextMenuRowsItems,
-		//	target: this.Grid.find("tr"),
-		//	onItemClick: (e) => {
-		//		const id = divMenu.attr("target");
-		//		this.OnContextRowsClick(e.itemData.text, id);
-		//	},
-
-		//	onPositioning: (e) => {
-		//		const el = $(e.jQueryEvent.target);
-		//		const row = el.closest("tr[role='row']");
-		//		divMenu.attr("target", row.attr("id"));
-		//	}
-		//});
 
 	}
 
